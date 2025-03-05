@@ -16,6 +16,13 @@ public class TarefasModel {
 
     public TarefasModel() {}
 
+    public TarefasModel(int id, String descricao, int status, LocalDate dataVencimento) {
+        this.Id = id;
+        this.Descricao = descricao;
+        this.Status = status;
+        this.DataVencimento = dataVencimento;
+    }
+
     public int getId() {return Id;}
     public void setId(int id) {Id = id;}
 

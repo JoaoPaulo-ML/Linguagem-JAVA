@@ -11,27 +11,30 @@ import java.time.format.DateTimeParseException;
 
 public class TarefasView {
 
-    public static void main(String[] args) {
+    TarefasController tarefasController = new TarefasController();
+
+    public static void main(String[] args) throws SQLException {
         Scanner scanner = new Scanner(System.in);
         TarefasView view = new TarefasView();
-        TarefasController tarefasController = new TarefasController();
 
         int menu;
         do {
-            System.out.println("\n0- Sair \n1- Cadastrar Tarefa \n2- Listar Tarefas");
+            System.out.println("\n0- Sair \n1- Cadastrar Tarefas \n2- Listar Tarefas \n3- Excluir Tarefas \n4- Editar Tarefas");
             menu = scanner.nextInt();
             scanner.nextLine();
 
             switch (menu) {
                 case 1:
-                    try {
-                        view.cadastrarTarefas(scanner);
-                    } catch (SQLException e) {
-                        System.out.println("Erro ao cadastrar tarefa: " + e.getMessage());
-                    }
+                    view.cadastrarTarefas(scanner);
                     break;
                 case 2:
-                        view.listarTarefas(tarefasController);
+                    view.listarTarefas();
+                    break;
+                case 3:
+                    view.excluirTarefas(scanner);
+                    break;
+                case 4:
+                    view.editarTarefas(scanner);
                     break;
                 case 0:
                     System.out.println("Saindo...");
@@ -40,11 +43,10 @@ public class TarefasView {
                     System.out.println("Opção inválida! Tente novamente.");
             }
         } while (menu != 0);
-
-        scanner.close();
     }
 
     public void cadastrarTarefas(Scanner scanner) throws SQLException {
+
         TarefasModel tarefas = new TarefasModel();
         TarefasController tarefasController = new TarefasController();
 
@@ -84,11 +86,10 @@ public class TarefasView {
                 System.out.println("Erro: Formato inválido! Use DD-MM-YYYY.");
             }
         }
-
         tarefasController.salvar(tarefas);
     }
 
-    public void listarTarefas(TarefasController tarefasController) {
+    public void listarTarefas() {
         List<TarefasModel> lista = tarefasController.listarTarefas();
 
         if (lista.isEmpty()) {
@@ -98,9 +99,64 @@ public class TarefasView {
             for (TarefasModel tarefa : lista) {
                 System.out.println("ID: " + tarefa.getId() +
                         " | Descrição: " + tarefa.getDescricao() +
-                        " | Status: " + tarefa.getStatus() +
+                        " | Status: " + TarefasController.descricaoStatus(tarefa.getStatus()) +
                         " | Data de Vencimento: " + tarefa.getDataVencimento());
             }
         }
+    }
+
+    public void excluirTarefas(Scanner scanner){
+
+        System.out.print("Digite o ID da tarefa que deseja excluir: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        String resultado = tarefasController.excluirTarefa(id);
+        System.out.println(resultado);
+    }
+
+    public void editarTarefas(Scanner scanner){
+
+        System.out.print("Digite o ID da tarefa que deseja editar: ");
+        int idEdicao = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Digite a nova descrição da tarefa: ");
+        String descricao = scanner.nextLine();
+
+        int status;
+        while (true) {
+            System.out.println("Digite o novo status da tarefa: \n1: Pendente \n2: Em andamento \n3: Concluído");
+            status = scanner.nextInt();
+            scanner.nextLine();
+
+            if (status >= 1 && status <= 3) {
+                break;
+            } else {
+                System.out.println("Erro! Status inválido. Tente novamente.");
+            }
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate dataVencimento;
+        while (true) {
+            System.out.print("Digite a nova data de vencimento (DD-MM-YYYY): ");
+            String dataStr = scanner.nextLine().trim();
+
+            if (dataStr.isEmpty()) {
+                System.out.println("Erro: A data não pode estar vazia.");
+                continue;
+            }
+
+            try {
+                dataVencimento = LocalDate.parse(dataStr, formatter);
+                break;
+            } catch (DateTimeParseException e) {
+                System.out.println("Erro: Formato inválido! Use DD-MM-YYYY.");
+            }
+        }
+
+        String resultadoEdicao = tarefasController.editarTarefa(idEdicao, descricao, status, dataVencimento);
+        System.out.println(resultadoEdicao);
     }
 }
