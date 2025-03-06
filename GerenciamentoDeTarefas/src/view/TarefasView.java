@@ -19,7 +19,7 @@ public class TarefasView {
 
         int menu;
         do {
-            System.out.println("\n0- Sair \n1- Cadastrar Tarefas \n2- Listar Tarefas \n3- Excluir Tarefas \n4- Editar Tarefas");
+            System.out.println("\n0- Sair \n1- Cadastrar Tarefas \n2- Listar Tarefas \n3- Excluir Tarefas \n4- Editar Tarefas \n5- Filtrar por Prioridade");
             menu = scanner.nextInt();
             scanner.nextLine();
 
@@ -35,6 +35,9 @@ public class TarefasView {
                     break;
                 case 4:
                     view.editarTarefas(scanner);
+                    break;
+                case 5:
+                    view.filtrarPorPrioridade(scanner);
                     break;
                 case 0:
                     System.out.println("Saindo...");
@@ -159,4 +162,28 @@ public class TarefasView {
         String resultadoEdicao = tarefasController.editarTarefa(idEdicao, descricao, status, dataVencimento);
         System.out.println(resultadoEdicao);
     }
+
+    public void filtrarPorPrioridade(Scanner scanner) {
+        System.out.println("\nDigite o status da tarefa para filtrar: \n1: Pendente \n2: Em andamento \n3: Concluído");
+        int status = scanner.nextInt();
+        scanner.nextLine();
+
+        if (status < 1 || status > 3) {
+            System.out.println("Erro! Status inválido. Tente novamente.");
+            return;
+        }
+        List<TarefasModel> listaFiltrada = tarefasController.filtrarTarefasPorStatus(status);
+
+        if (listaFiltrada.isEmpty()) {
+            System.out.println("\nNenhuma tarefa encontrada com esse status.");
+        } else {
+            for (TarefasModel tarefa : listaFiltrada) {
+                System.out.println("ID: " + tarefa.getId() +
+                        " | Descrição: " + tarefa.getDescricao() +
+                        " | Status: " + TarefasController.descricaoStatus(tarefa.getStatus()) +
+                        " | Data de Vencimento: " + tarefa.getDataVencimento());
+            }
+        }
+    }
+
 }

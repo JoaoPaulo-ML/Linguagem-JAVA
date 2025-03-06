@@ -1,8 +1,8 @@
 package repository;
 
-import java.time.LocalDate;
 import java.util.List;
 import model.TarefasModel;
+import java.time.LocalDate;
 import java.sql.SQLException;
 import javax.persistence.TypedQuery;
 import javax.persistence.Persistence;
